@@ -1,3 +1,20 @@
+-- Table Definition
+
+create table DIJKSTRA (
+  node integer,
+  path varchar(256)
+);
+
+insert into dijkstra values (1, '2,7;3,9;6,14');
+insert into dijkstra values (2, '1,7;3,10;4,15');
+insert into dijkstra values (3, '1,9;2,10;4,11;6,2');
+insert into dijkstra values (4, '2,15;3,11;5,6');
+insert into dijkstra values (5, '4,6;6,9');
+insert into dijkstra values (6, '1,14;3,2;5,9');
+commit;
+
+-- Code Below
+
 DECLARE
   type array_v is varray(6) of integer;
   type array_b is varray(6) of boolean;
