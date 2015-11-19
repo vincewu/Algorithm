@@ -1,0 +1,58 @@
+DECLARE
+  type array_v is varray(6) of integer;
+  type array_b is varray(6) of boolean;
+  distance array_v;
+  checked array_b;
+  checking array_v;
+  newChecking array_v;
+  paths dijkstra.path%type;
+  commaIdx integer;
+  columnIdx integer;
+  eachPath varchar(100);
+  node integer;
+  weight integer;
+BEGIN
+  distance := array_v(0, -1, -1, -1, -1, -1);
+  checked := array_b(false, false, false, false, false, false);
+  checking := array_v(1);
+  
+  while checking.count > 0
+  loop
+    -- siblings for next level
+    newChecking := array_v();
+    
+    for idx in 1 .. checking.count loop
+      select path into paths from dijkstra where node = checking(idx);
+      while length(paths) > 0 loop
+        columnIdx := instr(paths, ';');
+        if columnIdx = 0 then
+          columnIdx := length(paths) + 1;
+        end if;
+        
+        eachPath := substr(paths, 1, columnIdx - 1);
+        commaIdx := instr(eachPath, ',');
+        node := to_number(substr(eachPath, 1, commaIdx - 1));
+        weight := to_number(substr(eachPath, commaIdx + 1));
+        if not checked(node) then
+          newChecking.extend(1);
+          newChecking(newChecking.count) := node;
+          
+          if distance(node) = -1 or distance(node) > distance(checking(idx)) + weight then
+            distance(node) := distance(checking(idx)) + weight;
+          end if;
+          
+        end if;
+        
+        paths := substr(paths, columnIdx + 1);
+      end loop;
+
+      checked(checking(idx)) := true;
+    end loop;
+    checking := newChecking;
+  end loop;
+  
+  for idx in 1 .. distance.count loop
+    dbms_output.put_line('distance(' || idx || '): ' || distance(idx));
+  end loop;
+END;
+/
